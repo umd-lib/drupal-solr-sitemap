@@ -122,16 +122,6 @@ class SolrSitemapSettingsForm extends ConfigFormBase {
       try {
         $y_values = Yaml::parse($yfield_str);
         $config->set($yfield, $y_values);
-        // foreach ($y_values as $yv) {
-          // if (!empty($yv['filter']) && !empty($yv['sitemap'])) {
-          //   $job = [
-          //     'filter' => $yv['filter'],
-          //     'sitemap' => $yv['sitemap'],
-          //     'timestamp' => \Drupal::time()->getCurrentTime(),
-          //   ];
-          //   \Drupal::queue('collections_sitemap_worker')->createItem($job);
-          // }
-        // }
       }
       catch (ParseException $pe) {
         // Shouldn't happen, because invalid YAML should be caught by

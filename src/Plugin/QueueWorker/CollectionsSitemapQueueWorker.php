@@ -51,7 +51,8 @@ class CollectionsSitemapQueueWorker extends QueueWorkerBase implements Container
     }
     $sitemap = trim($data['sitemap']);
     $filter = trim($data['filter']);
-    $index = \Drupal\search_api\Entity\Index::load('fcrepo');
+    // this should be a configurable value.
+    $index = \Drupal\search_api\Entity\Index::load('searcher');
     if (empty($index)) {
       \Drupal::logger('solr_sitemap')->notice('Index not available');
       return;
@@ -67,7 +68,7 @@ class CollectionsSitemapQueueWorker extends QueueWorkerBase implements Container
     while ($end <= $results_count + $cnt) {
       \Drupal::logger('solr_sitemap')->notice($start . ' ' . $end . ' ' . $results_count);
       $query = $index->query();
-      $query->setOption('search_api_retrieved_field_values', ['id', 'collection']);
+      $query->setOption('search_api_retrieved_field_values', ['iiif_manifest__id']);
       $query->addCondition('is_discoverable', TRUE);
       if ($sitemap != 'alldiscoverable' && $filter != 'alldiscoverable') {
         $query->addCondition('presentation_set_label', $filter);
@@ -89,26 +90,10 @@ class CollectionsSitemapQueueWorker extends QueueWorkerBase implements Container
       $this->fc = new FedoraUtility();
 
       foreach ($results as $result) {
-        $id = $result->getId();
+        $id = $result->getField('iiif_manifest__id')->getValues()[0];
         if (!empty($id)) {
-          $id = str_replace('solr_document/', '', $id);
-          $collection = $result->getField('collection')->getValues()[0];
-
-          $collection_raw = explode("/rest/", $collection);
-
-          $collection_prefix = "pcdm";
-          if ($collection_raw[1]) {
-            $collection_check = explode("/", $collection_raw[1]);
-            if ($collection_check[0] == "dc") {
-              $collection_prefix = str_replace("//", "::", end($collection_raw));
-            }
-          }
-
-          $short_id = $this->fc->getFedoraItemHash($id);
-          if (!empty($short_id)) {
-            $processed_url = '/result/id/' . $short_id . '?relpath=' . $collection_prefix;
-            $urls[] = $processed_url;
-          }
+          $processed_url = '/search/id/' . $short_id;
+          $urls[] = $processed_url;
         }
       }
 
