@@ -1,0 +1,178 @@
+<?php
+
+/**
+ * @file
+ * Helpers and hook overrides for solr_sitemap.
+ */
+
+// Implements hook_cron()
+function solr_sitemap_cron() {
+  /**
+   * @note
+   *   Ultimate Cron should be used to make sure this does not run
+   *   More than nightly.
+   */
+  $config = \Drupal::configFactory()->getEditable('solr_sitemap.settings');
+  $targets = $config->get('solr_sitemap_targets');
+  if (!empty($targets) && count($targets) > 0) {
+    foreach ($targets as $target) {
+      if (empty($target['sitemap']) || empty($target['filter'])) {
+        continue;
+      }
+      $job = [
+        'filter' => $target['filter'],
+        'sitemap' => $target['sitemap'],
+        'timestamp' => \Drupal::time()->getCurrentTime(),
+      ];
+      \Drupal::queue('collections_sitemap_worker')->createItem($job);
+    }
+  }
+}
+
+// Implements hook_simple_sitemap_arbitrary_links_alter()
+function solr_sitemap_simple_sitemap_arbitrary_links_alter(&$arbitrary_links, $sitemap){
+  $settings = \Drupal::service('simple_sitemap.settings');
+  $base_url = $settings->get('base_url') ?: $GLOBALS['base_url'];
+  $dt = new \DateTime('first day of this year');
+  $lastmod = $dt->format('Y-m-d\TH:i:sP');
+  if ($sitemap->id() === 'worldsfairs') {
+    $worlds_fairs_urls = file_get_contents(__DIR__ . '/worldsfairs.txt');
+    $lines = explode(PHP_EOL, $worlds_fairs_urls);
+
+    foreach ($lines as $line) {
+      if (!empty($line)) {
+        $arbitrary_links[] = ['url' => $line,
+                              'priority' => '0.5',
+                              'changefreq' => 'yearly',
+                              'lastmod' => $lastmod];
+      }
+    }
+  }
+
+  if ($sitemap->id() === 'md_newspapers') {
+    $md_newsp_prefix = $base_url . '/newspapergateway/id/';
+
+    $np_ids = file_get_contents(__DIR__ . '/md_newspapers.txt');
+    $lines = explode(PHP_EOL, $np_ids);
+
+    foreach ($lines as $line) {
+      if (!empty($line)) {
+        $md_np_url = $md_newsp_prefix . $line;
+        $arbitrary_links[] = ['url' => $md_np_url,
+                              'priority' => '0.5',
+                              'changefreq' => 'yearly',
+                              'lastmod' => $lastmod];
+      }
+    }
+  }
+
+  if ($sitemap->id() === 'mdmap') {
+    $mdmap_prefix = $base_url . '/mdmap/';
+
+    $map_ids = file_get_contents(__DIR__ . '/mdmap.txt');
+    $lines = explode(PHP_EOL, $map_ids);
+
+    foreach ($lines as $line) {
+      if (!empty($line)) {
+        $mdmap_url = $mdmap_prefix . $line;
+        $arbitrary_links[] = ['url' => $mdmap_url,
+                              'priority' => '0.5',
+                              'changefreq' => 'yearly',
+                              'lastmod' => $lastmod];
+      }
+    }
+  }
+
+  if ($sitemap->id() === 'scores') {
+    $scores_prefix = $base_url . '/scores/id/';
+
+    $scores_ids = file_get_contents(__DIR__ . '/scores.txt');
+    $lines = explode(PHP_EOL, $scores_ids);
+
+    // 00005392
+
+    foreach ($lines as $line) {
+      if (!empty($line)) {
+        $formatted_id = str_pad($line, 8, '0', STR_PAD_LEFT);
+        $scores_url = $scores_prefix . $formatted_id;
+        $arbitrary_links[] = ['url' => $scores_url,
+                              'priority' => '0.5',
+                              'changefreq' => 'yearly',
+                              'lastmod' => $lastmod];
+      }
+    }
+  }
+
+  if ($sitemap->id() === 'plantpatents') {
+    $plants_prefix = $base_url . '/plantpatents/id/';
+
+    $plants_ids = file_get_contents(__DIR__ . '/plantpatents.txt');
+    $lines = explode(PHP_EOL, $plants_ids);
+
+    foreach ($lines as $line) {
+      if (!empty($line)) {
+        $plants_url = $plants_prefix . $line;
+        $arbitrary_links[] = ['url' => $plants_url,
+                              'priority' => '0.5',
+                              'changefreq' => 'yearly',
+                              'lastmod' => $lastmod];
+      }
+    }
+  }
+
+  $config = \Drupal::configFactory()->getEditable('solr_sitemap.settings');
+  $targets = $config->get('solr_sitemap_targets');
+  if (!empty($targets) && count($targets) > 0) {
+    foreach ($targets as $target) {
+      if (empty($target['sitemap'])) {
+        continue;
+      }
+      $sm = $target['sitemap'];
+      if ($sitemap->id() === $sm) {
+        $verified_key = $sm . '-file-verified';
+        $stored_checksum = \Drupal::state()->get($verified_key, NULL);
+        $filename = 'public://' . $sm . '.txt';
+        $current_checksum = sha1_file($filename);
+
+        if ($stored_checksum == $current_checksum) {
+          // continue;
+        }
+
+        \Drupal::state()->set($verified_key, $current_checksum);
+        $cur_ids = file_get_contents($filename);
+        $lines = explode(PHP_EOL, $cur_ids);
+
+        foreach ($lines as $line) {
+          if (!empty($line)) {
+            $cur_url = $base_url . $line;
+            $arbitrary_links[] = ['url' => $cur_url,
+                                  'priority' => '0.5',
+                                  'changefreq' => 'yearly',
+                                  'lastmod' => $lastmod];
+          }
+        }
+      }
+    }
+  }
+  if ($sitemap->id() === 'solr_example') {
+    $scores_url = $base_url . '/scores/id/';
+    $index = \Drupal\search_api\Entity\Index::load('scores');
+    $query = $index->query();
+
+    // $query->addCondition('status', 1)->addCondition('author', 1, '<>');
+    $query->setFulltextFields(['id']);
+
+    $query->range(1, 1000);
+
+    $results = $query->execute();
+
+    foreach ($results as $result) {
+      $id = $result->getId();
+      if (!empty($id)) {
+        $id = str_replace('solr_document/', '', $id);
+        $score_url = $scores_url . $id;
+        $arbitrary_links[] = ['url' => $score_url, 'priority' => '0.5', 'lastmod' => $lastmod];
+      }
+    }
+  }
+}

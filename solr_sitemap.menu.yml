@@ -1,0 +1,5 @@
+solr_sitemap.solr_sitemap_tab:
+  route_name: solr_sitemap.admin_settings_form
+  title: 'UMD Collections'
+  base_route: entity.simple_sitemap.collection
+  weight: 99

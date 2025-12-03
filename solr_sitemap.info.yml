@@ -1,0 +1,11 @@
+name: Solr Sitemap 
+description: Sitemap updates for UMD using Simple XML Sitemap
+package: UMD Services
+configure: solr_sitemap.admin_settings_form
+dependencies:
+  - simple_sitemap
+  - ultimate_cron
+  - search_api_solr
+
+type: module
+core_version_requirement: ^11 || ^9 || ^10

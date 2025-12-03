@@ -1,0 +1,17 @@
+{
+    "name": "umd-lib/solr-sitemap",
+    "description": "Solr supported sitemap for UMD using Simple XML Sitemap.",
+    "type": "drupal-module",
+    "license": "Apache-2.0",
+    "authors": [
+        {
+            "name": "UMD Libraries"
+        }
+    ],
+    "require": {
+        "drupal/simple_sitemap": "^4",
+        "drupal/ultimate_cron": "^2",
+        "drupal/search_api_solr": "^4"
+      },
+    "minimum-stability": "beta"
+}
