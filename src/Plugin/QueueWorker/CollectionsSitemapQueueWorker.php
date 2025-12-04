@@ -93,7 +93,7 @@ class CollectionsSitemapQueueWorker extends QueueWorkerBase implements Container
       foreach ($results as $result) {
         $id = $result->getField('iiif_manifest__id')->getValues()[0];
         if (!empty($id)) {
-          $processed_url = '/search/id/' . $short_id;
+          $processed_url = '/search/id/' . $id;
           $urls[] = $processed_url;
         }
       }
