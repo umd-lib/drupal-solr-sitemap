@@ -9,7 +9,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\File\FileExists;
 use Drupal\file\Entity\File;
 use Drupal\search_api\Entity\Index;
-use Drupal\mirador_viewer\Utility\FedoraUtility;
 
 /**
  * @QueueWorker(
@@ -90,8 +89,6 @@ class CollectionsSitemapQueueWorker extends QueueWorkerBase implements Container
         }
         return;
       }
-
-      $this->fc = new FedoraUtility();
 
       foreach ($results as $result) {
         $id = $result->getField('iiif_manifest__id')->getValues()[0];
