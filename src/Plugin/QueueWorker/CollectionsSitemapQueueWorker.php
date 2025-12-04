@@ -68,10 +68,14 @@ class CollectionsSitemapQueueWorker extends QueueWorkerBase implements Container
     while ($end <= $results_count + $cnt) {
       \Drupal::logger('solr_sitemap')->notice($start . ' ' . $end . ' ' . $results_count);
       $query = $index->query();
+      // Should be configurable
       $query->setOption('search_api_retrieved_field_values', ['iiif_manifest__id']);
-      $query->addCondition('is_discoverable', TRUE);
+      // This looks to be unnecessary as it's now handled in the fcrepo_helper module
+      // as a PreQuery override.
+      // $query->addCondition('is_discoverable', TRUE);
       if ($sitemap != 'alldiscoverable' && $filter != 'alldiscoverable') {
-        $query->addCondition('presentation_set_label', $filter);
+        // Should be configurable
+        $query->addCondition('presentation_set__facet', $filter);
       }
       $query->range($start, $end);
       $query->sort('id');
