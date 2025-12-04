@@ -78,7 +78,7 @@ class CollectionsSitemapQueueWorker extends QueueWorkerBase implements Container
         $query->addCondition('presentation_set__facet', $filter);
       }
       $query->range($start, $end);
-      $query->sort('id');
+      $query->sort('iiif_manifest__id');
       $query->setProcessingLevel(\Drupal\search_api\Query\QueryInterface::PROCESSING_NONE);
       $results = $query->execute();
 
