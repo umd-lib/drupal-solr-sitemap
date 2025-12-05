@@ -49,7 +49,7 @@ function solr_sitemap_simple_sitemap_arbitrary_links_alter(&$arbitrary_links, $s
     }
   }
 
-  if ($sitemap->id() === 'md_newspapers') {
+  if ($sitemap->id() === 'md-newspapers') {
     $md_newsp_prefix = $base_url . '/newspapergateway/search/id/';
 
     $np_ids = file_get_contents(__DIR__ . '/md_newspapers.txt');
@@ -67,7 +67,7 @@ function solr_sitemap_simple_sitemap_arbitrary_links_alter(&$arbitrary_links, $s
   }
 
   if ($sitemap->id() === 'mdmap') {
-    $mdmap_prefix = $base_url . '/mdmap/search/id/';
+    $mdmap_prefix = $base_url . '/mdmap/search/id';
 
     $map_ids = file_get_contents(__DIR__ . '/mdmap.txt');
     $lines = explode(PHP_EOL, $map_ids);
