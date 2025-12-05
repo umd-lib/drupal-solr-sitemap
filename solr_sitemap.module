@@ -50,7 +50,7 @@ function solr_sitemap_simple_sitemap_arbitrary_links_alter(&$arbitrary_links, $s
   }
 
   if ($sitemap->id() === 'md_newspapers') {
-    $md_newsp_prefix = $base_url . '/newspapergateway/id/';
+    $md_newsp_prefix = $base_url . '/newspapergateway/search/id/';
 
     $np_ids = file_get_contents(__DIR__ . '/md_newspapers.txt');
     $lines = explode(PHP_EOL, $np_ids);
@@ -67,7 +67,7 @@ function solr_sitemap_simple_sitemap_arbitrary_links_alter(&$arbitrary_links, $s
   }
 
   if ($sitemap->id() === 'mdmap') {
-    $mdmap_prefix = $base_url . '/mdmap/';
+    $mdmap_prefix = $base_url . '/mdmap/search/id/';
 
     $map_ids = file_get_contents(__DIR__ . '/mdmap.txt');
     $lines = explode(PHP_EOL, $map_ids);
@@ -84,7 +84,7 @@ function solr_sitemap_simple_sitemap_arbitrary_links_alter(&$arbitrary_links, $s
   }
 
   if ($sitemap->id() === 'scores') {
-    $scores_prefix = $base_url . '/scores/id/';
+    $scores_prefix = $base_url . '/scores/search/id/';
 
     $scores_ids = file_get_contents(__DIR__ . '/scores.txt');
     $lines = explode(PHP_EOL, $scores_ids);
@@ -104,7 +104,7 @@ function solr_sitemap_simple_sitemap_arbitrary_links_alter(&$arbitrary_links, $s
   }
 
   if ($sitemap->id() === 'plantpatents') {
-    $plants_prefix = $base_url . '/plantpatents/id/';
+    $plants_prefix = $base_url . '/plantpatents/search/id/';
 
     $plants_ids = file_get_contents(__DIR__ . '/plantpatents.txt');
     $lines = explode(PHP_EOL, $plants_ids);
